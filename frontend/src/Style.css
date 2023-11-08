@@ -1,0 +1,76 @@
+*{
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+section.my-section{
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(61, 61, 61);
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    
+}
+.my-form{
+    display: flex;
+    flex-direction: column;
+}
+.my-form label{
+    margin-top: 1em;
+}
+.my-form input{
+    color:#000;
+    background-color: rgb(226, 226, 226);
+    border: none;
+    border-radius: 0.5em;
+    margin: 0.5em 0;
+    text-align: center;
+    height: 3em;
+    width: 25em;
+}
+.my-form input:focus{
+    outline: none;
+}
+.my-form .reg-btn{
+    border-radius: 0.5em;
+    margin: 2em 0;
+    border: none;
+    align-self: center;
+    width: 10em;
+    height: 3em;
+    background-color: rgb(55, 104, 168);
+    font-size: medium;
+}
+.my-form .reg-btn:hover{
+    background-color: rgb(36, 68, 109);
+    cursor: pointer;
+    
+}
+.my-form .reg-btn:disabled{
+    cursor: not-allowed;
+    background-color: rgb(114, 114, 114);
+}
+.my-form h1{
+    border-bottom: solid #fff 1px;
+    text-align: center;
+    margin-bottom: 1em;
+    padding-bottom: 0.3em;
+}
+.my-form span{
+    align-self: center;
+    width: 20em;
+}
+.my-form span div{
+    background-color: rgb(37, 37, 37);
+    padding: 0.5em;
+    margin-top: 0.5em;
+    border: solid rgb(141, 16, 16) 1px;
+    border-radius: 0.4em;
+}
+div.success span{
+    color: green
+}
