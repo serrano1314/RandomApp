@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import lombok.Data;
 
 @Data
-
 public class User implements UserDetails {
     private Long id;
     private String firstname;
@@ -20,8 +19,8 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private String role;
-    private Timestamp created_on;
-    private Timestamp updated_on;
+    private LocalDateTime created_on;
+    private LocalDateTime updated_on;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

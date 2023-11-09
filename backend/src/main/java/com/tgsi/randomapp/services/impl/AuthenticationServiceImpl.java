@@ -1,13 +1,16 @@
 package com.tgsi.randomapp.services.impl;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.tgsi.randomapp.dto.JwtAuthenticationResponse;
 import com.tgsi.randomapp.dto.RefreshTokenRequest;
@@ -23,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+
+// @CrossOrigin(origins = "http://localhost:5173")
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final PasswordEncoder passwordEncoder;
@@ -40,6 +45,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setLastname(signUpRequest.getLastname());
         user.setRole(Role.USER.name());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+
+        // Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        // user.setCreated_on(new Sysm);
+        // user.setUpdated_on(currentTimestamp);
+
         userMapper.insertUser(user);
         return user;
     }
@@ -47,16 +57,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public JwtAuthenticationResponse signin(SignInRequest signInRequest) {
 
         System.out.println("AUTH<<<<<<");
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                signInRequest.getEmail(),
-                signInRequest.getPassword()));
+        try {
+
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    signInRequest.getEmail(),
+                    signInRequest.getPassword()));
+        } catch (AuthenticationException e) {
+            System.out.println("Authentication failed: " + e.getMessage());
+        }
 
         System.out.println("AUTH>>>>>>");
 
         User user = userMapper.findByEmail(signInRequest.getEmail());
 
         if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+            System.out.println("null");
         }
 
         System.out.println("TOKEN>>>");

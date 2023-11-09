@@ -1,12 +1,11 @@
 package com.tgsi.randomapp.controller;
 
-import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +36,20 @@ public class TestController {
 
     @GetMapping("/all")
     public List<User> getAllUser() {
+
         return userMapper.getAllUser();
+        // List<User> users = userMapper.getAllUser();
+
+        // List<User> updatedUsers = users.stream()
+        // .map(user -> {
+        // // Add string representations of created_on and updated_on fields to the User
+        // user.setCreatedOnString(user.getCreated_on().toString());
+        // user.setUpdatedOnString(user.getUpdated_on().toString());
+        // return user;
+        // })
+        // .collect(Collectors.toList());
+
+        // return updatedUsers;
     }
 
     @GetMapping("/get/{id}")
@@ -55,9 +67,9 @@ public class TestController {
         user.setRole(Role.USER.name());
         user.setPassword(new BCryptPasswordEncoder().encode(signUpRequest.getPassword()));
 
-        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-        user.setCreated_on(currentTimestamp);
-        user.setUpdated_on(currentTimestamp);
+        // Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        // user.setCreated_on(currentTimestamp);
+        // user.setUpdated_on(currentTimestamp);
 
         userMapper.insertUser(user);
         return ResponseEntity.ok(user);

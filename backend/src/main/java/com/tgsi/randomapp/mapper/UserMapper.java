@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.apache.ibatis.type.EnumTypeHandler;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import com.tgsi.randomapp.entities.Role;
 import com.tgsi.randomapp.entities.User;
@@ -18,7 +19,7 @@ import com.tgsi.randomapp.entities.User;
 @Mapper
 public interface UserMapper {
 
-        @Select("SELECT * FROM user")
+        @Select("SELECT * from user")
         public List<User> getAllUser();
 
         @Select("SELECT * FROM user WHERE id=#{id}")
