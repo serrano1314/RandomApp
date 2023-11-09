@@ -3,7 +3,11 @@ package tgsi.randomapp.backend.auth;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +31,17 @@ public class AuthenticationController {
   @PostMapping("/authenticate")
   public ResponseEntity<AuthenticationResponse> authenticate(
       @RequestBody AuthenticationRequest request) {
+
+    if (request.getEmail().isEmpty() ||
+        request.getPassword().isEmpty()) {
+      throw new InvalidFieldException("Error");
+    }
     return ResponseEntity.ok(service.authenticate(request));
+  }
+
+  @ExceptionHandler
+  public ResponseEntity<String> handleInvalidFieldException(InvalidFieldException e) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing Username and Password");
   }
 
   @PostMapping("/refresh-token")
