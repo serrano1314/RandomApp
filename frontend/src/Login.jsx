@@ -6,9 +6,10 @@ const LOGIN_URL = "/auth/authenticate";
 const Login = () => {
   const { setAuth } = useContext(AuthContext);
   const [success, setSuccess] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
 
   const userRef = useRef();
-  //   const errRef = useRef();
+  const errRef = useRef();
   const submitRef = useRef();
 
   const [usernameInput, setUsernameInput] = useState("");
@@ -50,12 +51,16 @@ const Login = () => {
     } catch (error) {
       if (!error.response) {
         console.log("NO SERVER RESPONSE");
+        setErrMsg("NO RESPONSE");
       } else if (error.response.status == 400) {
         console.log("Missing Username and Password");
+        setErrMsg("Missing Username and Password");
       } else if (error.response.status == 401) {
         console.log("Unauthorized");
+        setErrMsg("Invalid username or password");
       } else if (error.response.status == 403) {
         console.log("Forbidden");
+        setErrMsg("Forbidden");
       } else {
         console.log("Login Failed");
       }
@@ -80,6 +85,7 @@ const Login = () => {
             <form className="my-form" onSubmit={handleSubmit}>
               <h1>Login</h1>
 
+              <div className={errMsg !== "" ? "error" : ""}>{errMsg}</div>
               <label htmlFor="username">Username:</label>
               <input
                 autoComplete="off"

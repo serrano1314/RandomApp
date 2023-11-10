@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,12 +60,23 @@ public class AuthenticationService {
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     System.out.println("AuthenticationService.authenticate");
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(
-            request.getEmail(),
-            request.getPassword()));
+
+    try {
+      authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(
+              request.getEmail(),
+              request.getPassword()));
+    } catch (AuthenticationException e) {
+      // Handle authentication failure,
+
+      // throw new Exception("Authentication failed", e);
+      // email or password does not exist and will return null for validation
+      return null;
+    }
+    System.out.println("findbyemail ");
     User user = userMapper.findByEmail(request.getEmail());
     // .orElseThrow();
+    System.out.println(">>>>>>" + user.toString());
     var jwtToken = jwtService.generateToken(user);
     var refreshToken = jwtService.generateRefreshToken(user);
     revokeAllUserTokens(user);

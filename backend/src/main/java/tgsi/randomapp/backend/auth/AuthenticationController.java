@@ -35,15 +35,16 @@ public class AuthenticationController {
     System.out.println("AuthenticationController.authenticate");
     if (request.getEmail().isEmpty() ||
         request.getPassword().isEmpty()) {
-      throw new InvalidFieldException("Error");
+      return ResponseEntity.badRequest().build();
     }
-    return ResponseEntity.ok(service.authenticate(request));
-  }
 
-  @ExceptionHandler
-  public ResponseEntity<String> handleInvalidFieldException(InvalidFieldException e) {
-    System.out.println("AuthenticationController.handleInvalidFieldException");
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing Username and Password");
+    var response = service.authenticate(request);
+    if (response == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    // return only a response with body if authenticated
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   @PostMapping("/refresh-token")
