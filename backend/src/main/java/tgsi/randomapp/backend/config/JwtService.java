@@ -26,26 +26,31 @@ public class JwtService {
   private long refreshExpiration;
 
   public String extractUsername(String token) {
+    System.out.println("Jwtservice.extractusername");
     return extractClaim(token, Claims::getSubject);
   }
 
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    System.out.println("Jwtservice.extractclaim");
     final Claims claims = extractAllClaims(token);
     return claimsResolver.apply(claims);
   }
 
   public String generateToken(UserDetails userDetails) {
+    System.out.println("Jwtservice.generatetoken1");
     return generateToken(new HashMap<>(), userDetails);
   }
 
   public String generateToken(
       Map<String, Object> extraClaims,
       UserDetails userDetails) {
+    System.out.println("Jwtservice.generatetoken2");
     return buildToken(extraClaims, userDetails, jwtExpiration);
   }
 
   public String generateRefreshToken(
       UserDetails userDetails) {
+    System.out.println("Jwtservice.generaterefreshtoken");
     return buildToken(new HashMap<>(), userDetails, refreshExpiration);
   }
 
@@ -53,6 +58,7 @@ public class JwtService {
       Map<String, Object> extraClaims,
       UserDetails userDetails,
       long expiration) {
+    System.out.println("Jwtservice.buildtoken");
     return Jwts
         .builder()
         .setClaims(extraClaims)
@@ -64,19 +70,23 @@ public class JwtService {
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {
+    System.out.println("Jwtservice.istokenvalid");
     final String username = extractUsername(token);
     return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
   }
 
   private boolean isTokenExpired(String token) {
+    System.out.println("Jwtservice.istokenexpired");
     return extractExpiration(token).before(new Date());
   }
 
   private Date extractExpiration(String token) {
+    System.out.println("Jwtservice.extractexpiration");
     return extractClaim(token, Claims::getExpiration);
   }
 
   private Claims extractAllClaims(String token) {
+    System.out.println("Jwtservice.extractallclaims");
     return Jwts
         .parserBuilder()
         .setSigningKey(getSignInKey())
@@ -86,7 +96,9 @@ public class JwtService {
   }
 
   private Key getSignInKey() {
+    System.out.println("Jwtservice.getsigninkey");
     byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+    System.out.println("Jwtservice.getsigninkey1");
     return Keys.hmacShaKeyFor(keyBytes);
   }
 }

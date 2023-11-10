@@ -1,6 +1,6 @@
 package tgsi.randomapp.backend.config;
 
-import tgsi.randomapp.backend.token.TokenRepository;
+import tgsi.randomapp.backend.token.TokenMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,25 +13,27 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
 
-  private final TokenRepository tokenRepository;
+  private final TokenMapper tokenMapper;
 
   @Override
   public void logout(
       HttpServletRequest request,
       HttpServletResponse response,
       Authentication authentication) {
+    System.out.println("logoutservice.logout");
     final String authHeader = request.getHeader("Authorization");
     final String jwt;
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
       return;
     }
     jwt = authHeader.substring(7);
-    var storedToken = tokenRepository.findByToken(jwt)
-        .orElse(null);
+    var storedToken = tokenMapper.findByToken(jwt);
+    // .orElse(null);
+
     if (storedToken != null) {
       storedToken.setExpired(true);
       storedToken.setRevoked(true);
-      tokenRepository.save(storedToken);
+      tokenMapper.insertToken(storedToken);
       SecurityContextHolder.clearContext();
     }
   }

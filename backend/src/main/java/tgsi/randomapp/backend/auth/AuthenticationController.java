@@ -25,13 +25,14 @@ public class AuthenticationController {
   @PostMapping("/register")
   public ResponseEntity<AuthenticationResponse> register(
       @RequestBody RegisterRequest request) {
+    System.out.println("AuthenticationController.register");
     return ResponseEntity.ok(service.register(request));
   }
 
   @PostMapping("/authenticate")
   public ResponseEntity<AuthenticationResponse> authenticate(
       @RequestBody AuthenticationRequest request) {
-
+    System.out.println("AuthenticationController.authenticate");
     if (request.getEmail().isEmpty() ||
         request.getPassword().isEmpty()) {
       throw new InvalidFieldException("Error");
@@ -41,6 +42,7 @@ public class AuthenticationController {
 
   @ExceptionHandler
   public ResponseEntity<String> handleInvalidFieldException(InvalidFieldException e) {
+    System.out.println("AuthenticationController.handleInvalidFieldException");
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing Username and Password");
   }
 
@@ -48,6 +50,7 @@ public class AuthenticationController {
   public void refreshToken(
       HttpServletRequest request,
       HttpServletResponse response) throws IOException {
+    System.out.println("AuthenticationController.refreshToken");
     service.refreshToken(request, response);
   }
 
