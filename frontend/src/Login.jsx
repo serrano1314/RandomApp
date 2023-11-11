@@ -1,9 +1,15 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
+import AuthContext from "./context/AuthProvider";
+import Axios from "./api/Axios";
+const LOGIN_URL = "/auth/authenticate";
+
 const Login = () => {
+  const { setAuth } = useContext(AuthContext);
   const [success, setSuccess] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
 
   const userRef = useRef();
-  //   const errRef = useRef();
+  const errRef = useRef();
   const submitRef = useRef();
 
   const [usernameInput, setUsernameInput] = useState("");
@@ -20,10 +26,46 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccess(true);
-    setUsernameInput("");
-    setPasswordInput("");
-    console.log(usernameInput, passwordInput);
+
+    try {
+      const response = await Axios.post(
+        LOGIN_URL,
+        {
+          email: usernameInput,
+          password: passwordInput,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json", // Set the Content-Type header explicitly
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(response.data);
+      const accessToken = response.access_token;
+      const refreshToken = response.refresh_token;
+      setAuth({ accessToken, refreshToken });
+      setUsernameInput("");
+      setPasswordInput("");
+      setSuccess(true);
+    } catch (error) {
+      if (!error.response) {
+        console.log("NO SERVER RESPONSE");
+        setErrMsg("NO RESPONSE");
+      } else if (error.response.status == 400) {
+        console.log("Missing Username and Password");
+        setErrMsg("Missing Username and Password");
+      } else if (error.response.status == 401) {
+        console.log("Unauthorized");
+        setErrMsg("Invalid username or password");
+      } else if (error.response.status == 403) {
+        console.log("Forbidden");
+        setErrMsg("Forbidden");
+      } else {
+        console.log("Login Failed");
+      }
+      console.log(error);
+    }
   };
 
   return (
@@ -43,6 +85,7 @@ const Login = () => {
             <form className="my-form" onSubmit={handleSubmit}>
               <h1>Login</h1>
 
+              <div className={errMsg !== "" ? "error" : ""}>{errMsg}</div>
               <label htmlFor="username">Username:</label>
               <input
                 autoComplete="off"
@@ -54,7 +97,7 @@ const Login = () => {
                 id="username"
                 // onFocus={() => setUserFocus(true)}
                 // onBlur={() => setUserFocus(false)}
-                required
+                // required
               />
               {/* <span className="">
                 {validUser || usernameInput == "" || userFocus ? (
@@ -80,7 +123,7 @@ const Login = () => {
                 id="password"
                 // onFocus={() => setPasswordFocus(true)}
                 // onBlur={() => setPasswordFocus(false)}
-                required
+                // required
               />
               {/* <span className="">
                 {validPassword || passwordInput == "" || passwordFocus ? (

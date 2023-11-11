@@ -3,7 +3,7 @@ import Axios from "./api/Axios";
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = "/api/v1/auth/signup";
+const REGISTER_URL = "/auth/signup";
 
 const Register = () => {
   const userRef = useRef();

@@ -15,6 +15,13 @@ section.my-section{
     padding: 0;
     
 }
+.error{
+    text-align: center;
+    background-color: #8a3737;
+    padding: 1em;
+    border: red solid 0.15em;
+    border-radius: 0.5em;
+}
 .my-form{
     display: flex;
     flex-direction: column;
