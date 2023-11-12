@@ -15,6 +15,7 @@ const Home = () => {
 
       setAuth({});
       navigate("/linkpage");
+      console.log(response);
     } catch (err) {
       console.log(err);
     }
@@ -33,7 +34,6 @@ const Home = () => {
         <br />
         <Link to="/user">Go to the User</Link>
         <br />
-        <Link to="/linkpage">Go to the link page</Link>
         <div className="flexGrow">
           <button onClick={logout}>Sign Out</button>
         </div>
