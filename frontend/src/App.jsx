@@ -7,6 +7,7 @@ import Home from "./component/Home";
 import RequireAuth from "./component/RequireAuth";
 import LinkPage from "./component/LinkPage";
 import Unauthorized from "./component/Unauthorized";
+import Admin from "./component/Admin";
 
 const ROLES = {
   admin: "ADMIN",
@@ -37,7 +38,7 @@ function App() {
           </Route>
 
           <Route element={<RequireAuth allowedRole={[ROLES.admin]} />}>
-            <Route path="admin" element={"Admin Page"} />
+            <Route path="admin" element={<Admin />} />
           </Route>
 
           <Route element={<RequireAuth allowedRole={[ROLES.manager]} />}>

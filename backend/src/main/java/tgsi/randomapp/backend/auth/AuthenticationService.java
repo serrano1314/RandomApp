@@ -86,6 +86,7 @@ public class AuthenticationService {
         .accessToken(jwtToken)
         .refreshToken(refreshToken)
         .role(user.getRole())
+        .email(user.getEmail())
         .build();
   }
 
@@ -116,6 +117,7 @@ public class AuthenticationService {
   public void refreshToken(
       HttpServletRequest request,
       HttpServletResponse response) throws IOException {
+    System.out.println("AuthenticationService.refreshtoken");
     final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     final String refreshToken;
     final String userEmail;

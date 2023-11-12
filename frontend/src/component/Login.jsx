@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import useAuth from "../hooks/UseAuth";
+import useAuth from "../hooks/useAuth";
 import Axios from "../api/Axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
@@ -49,9 +49,11 @@ const Login = () => {
       );
       console.log(response.data);
       const accessToken = response.data.access_token;
+      const refreshToken = response.data.refresh_token;
       const roles = [response.data.role];
+      const user = response.data.user;
       console.log("AUTH>> ", accessToken, roles);
-      setAuth({ usernameInput, passwordInput, roles, accessToken });
+      setAuth({ user, passwordInput, roles, accessToken, refreshToken });
       setUsernameInput("");
       setPasswordInput("");
       navigate(from, { replace: true });
