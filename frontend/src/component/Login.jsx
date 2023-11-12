@@ -49,9 +49,9 @@ const Login = () => {
       );
       console.log(response.data);
       const accessToken = response.data.access_token;
-      const role = response.data.role;
-      console.log("AUTH>> ", accessToken, role);
-      setAuth({ usernameInput, passwordInput, role, accessToken });
+      const roles = [response.data.role];
+      console.log("AUTH>> ", accessToken, roles);
+      setAuth({ usernameInput, passwordInput, roles, accessToken });
       setUsernameInput("");
       setPasswordInput("");
       navigate(from, { replace: true });
