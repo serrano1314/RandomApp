@@ -1,53 +1,78 @@
-import React from "react";
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 import Axios from "../api/Axios";
-import useRefreshToken from "../hooks/useRefreshToken";
+import { request } from "../api/Api";
 
 const Users = () => {
-  const refresh = useRefreshToken();
+  const { auth, setAuth } = useAuth();
+
   const [users, setUsers] = useState();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const getUsers = async () => {
+
+    const getAdmin = async () => {
+      const accessToken = auth.accessToken;
       try {
-        const response = await Axios.get("/users-demo", {
-          signal: controller.signal,
-        });
-        console.log(response);
-        isMounted && setUsers(response.data);
+        const response = await request("get", "/admin", null, accessToken);
+        console.log("Successful response:", response);
+        isMounted && setUsers([response]);
       } catch (error) {
-        console.log(error);
+        console.log("Error response:", error.response);
+        console.error(error);
+        navigate("/", { state: { from: location }, replace: true });
       }
     };
-    getUsers();
+
+    // getAdmin();
+
+    const refresh = async () => {
+      const refreshToken = auth.refreshToken;
+      try {
+        const response = await request(
+          "post",
+          "/auth/refresh-token",
+          null,
+          refreshToken
+        );
+        setAuth((prev) => {
+          console.log(">>>>1", prev.accessToken);
+          console.log(">>>>2", response.access_token);
+          return { ...prev, accessToken: response.access_token };
+        });
+        console.log("Refresh Token Successful response:", auth);
+      } catch (error) {
+        console.log("Error response:", error.response);
+        console.error(error);
+        navigate("/", { state: { from: location }, replace: true });
+      }
+    };
+
+    refresh();
+
     return () => {
       isMounted = false;
       controller.abort();
     };
   }, []);
+
   return (
-    <div>
-      <article>
-        <h2>User List</h2>
-        {users?.length ? (
-          <ul>
-            {users.map((user, i) => {
-              <li key={i}>{user}</li>;
-            })}
-          </ul>
-        ) : (
-          <p>No users to display</p>
-        )}
-        <button
-          onClick={() => {
-            refresh();
-          }}
-        >
-          Refresh
-        </button>
-      </article>
-    </div>
+    <article>
+      <h2>Users List</h2>
+      {users?.length ? (
+        <ul>
+          {users.map((user, i) => (
+            <li key={i}>{user}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>No users to display</p>
+      )}
+    </article>
   );
 };
 
