@@ -35,13 +35,13 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const responseData = await login(usernameInput, passwordInput);
+      const response = await login(usernameInput, passwordInput);
 
-      console.log(responseData);
-      const accessToken = responseData.access_token;
-      const refreshToken = responseData.refresh_token;
-      const roles = [responseData.role];
-      const user = responseData.user;
+      console.log(response);
+      const accessToken = response.data.access_token;
+      const refreshToken = response.data.refresh_token;
+      const roles = [response.data.role];
+      const user = response.data.user;
       console.log("AUTH>> ", accessToken, roles);
       setAuth({ user, passwordInput, roles, accessToken, refreshToken });
       setUsernameInput("");

@@ -20,11 +20,11 @@ const Users = () => {
       try {
         const response = await request("get", "/admin", null, accessToken);
         console.log("Successful response:", response);
-        isMounted && setUsers([response]);
+        isMounted && setUsers([response.data]);
       } catch (error) {
         console.log("Error response:", error.response);
         console.error(error);
-        navigate("/", { state: { from: location }, replace: true });
+        navigate("/login", { state: { from: location }, replace: true });
       }
     };
 
@@ -36,12 +36,12 @@ const Users = () => {
       console.log("REFRESH RESPONSE", response);
       setAuth((prev) => {
         console.log(">>>>1", prev.accessToken);
-        console.log(">>>>2", response.access_token);
+        console.log(">>>>2", response.data.access_token);
         return { ...prev, accessToken: response.access_token };
       });
     };
 
-    // refresh();
+    refresh();
 
     return () => {
       isMounted = false;

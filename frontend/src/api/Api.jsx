@@ -17,7 +17,7 @@ const request = async (method, url, data = null, accessToken = null) => {
       headers,
       withCredentials: true,
     });
-    return response.data;
+    return response;
   } catch (err) {
     console.error(err);
     throw err; // Re-throw the error to handle it in the calling function
