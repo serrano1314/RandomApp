@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Axios from "../api/Axios";
-import { request } from "../api/Api";
+import { refreshToken, request } from "../api/Api";
 
 const Users = () => {
   const { auth, setAuth } = useAuth();
@@ -28,31 +28,20 @@ const Users = () => {
       }
     };
 
-    // getAdmin();
+    getAdmin();
 
     const refresh = async () => {
-      const refreshToken = auth.refreshToken;
-      try {
-        const response = await request(
-          "post",
-          "/auth/refresh-token",
-          null,
-          refreshToken
-        );
-        setAuth((prev) => {
-          console.log(">>>>1", prev.accessToken);
-          console.log(">>>>2", response.access_token);
-          return { ...prev, accessToken: response.access_token };
-        });
-        console.log("Refresh Token Successful response:", auth);
-      } catch (error) {
-        console.log("Error response:", error.response);
-        console.error(error);
-        navigate("/", { state: { from: location }, replace: true });
-      }
+      console.log("REFRESH TOKEN");
+      const response = await refreshToken(auth.refreshToken);
+      console.log("REFRESH RESPONSE", response);
+      setAuth((prev) => {
+        console.log(">>>>1", prev.accessToken);
+        console.log(">>>>2", response.access_token);
+        return { ...prev, accessToken: response.access_token };
+      });
     };
 
-    refresh();
+    // refresh();
 
     return () => {
       isMounted = false;

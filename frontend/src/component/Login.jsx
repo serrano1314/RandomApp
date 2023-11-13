@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import Axios from "../api/Axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { login, request } from "../api/Api";
 
 const LOGIN_URL = "/auth/authenticate";
 
@@ -34,24 +35,13 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await Axios.post(
-        LOGIN_URL,
-        {
-          email: usernameInput,
-          password: passwordInput,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json", // Set the Content-Type header explicitly
-          },
-          withCredentials: true,
-        }
-      );
-      console.log(response.data);
-      const accessToken = response.data.access_token;
-      const refreshToken = response.data.refresh_token;
-      const roles = [response.data.role];
-      const user = response.data.user;
+      const responseData = await login(usernameInput, passwordInput);
+
+      console.log(responseData);
+      const accessToken = responseData.access_token;
+      const refreshToken = responseData.refresh_token;
+      const roles = [responseData.role];
+      const user = responseData.user;
       console.log("AUTH>> ", accessToken, roles);
       setAuth({ user, passwordInput, roles, accessToken, refreshToken });
       setUsernameInput("");

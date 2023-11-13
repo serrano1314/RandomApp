@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Axios from "../api/Axios";
+import { register } from "../api/Api";
 
 const USER_REGEX =
   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -64,23 +65,14 @@ const Register = () => {
     console.log(usernameInput, passwordInput);
 
     try {
-      const response = await Axios.post(
-        REGISTER_URL,
-        {
-          firstname: "Steven",
-          lastname: "Serrano",
-          email: usernameInput,
-          password: passwordInput,
-          role: "USER",
-        },
-        {
-          headers: {
-            "Content-Type": "application/json", // Set the Content-Type header explicitly
-          },
-          withCredentials: true,
-        }
+      const responseData = register(
+        "Steven",
+        "Serrano",
+        usernameInput,
+        passwordInput,
+        "USER"
       );
-      console.log(response.data);
+      console.log(responseData);
       setSuccess(true);
       return;
     } catch (e) {
