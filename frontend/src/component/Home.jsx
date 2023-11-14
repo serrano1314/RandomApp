@@ -4,21 +4,15 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthProvider";
 import Axios from "../api/Axios";
+import useLogout from "../hooks/useLogout";
 
 const Home = () => {
-  const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
+  const logout = useLogout();
 
-  const logout = async () => {
-    try {
-      const response = await Axios.request("auth/logout");
-
-      setAuth({});
-      navigate("/linkpage");
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
+  const signOut = async () => {
+    await logout();
+    navigate("/linkpage");
   };
 
   return (
@@ -35,7 +29,7 @@ const Home = () => {
         <Link to="/user">Go to the User</Link>
         <br />
         <div className="flexGrow">
-          <button onClick={logout}>Sign Out</button>
+          <button onClick={signOut}>Sign Out</button>
         </div>
       </section>
     </>
