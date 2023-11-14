@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Await } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Axios from "../api/Axios";
-import { refreshToken, request } from "../api/Api";
+import { request } from "../api/Api";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 const Users = () => {
   const { auth, setAuth } = useAuth();
@@ -10,11 +11,14 @@ const Users = () => {
   const [users, setUsers] = useState();
   const navigate = useNavigate();
   const location = useLocation();
+  const refresh = useRefreshToken();
+
+  const handleRefresh = async () => {
+    await refresh();
+  };
 
   useEffect(() => {
     let isMounted = true;
-    const controller = new AbortController();
-
     const getAdmin = async () => {
       const accessToken = auth.accessToken;
       try {
@@ -30,22 +34,8 @@ const Users = () => {
 
     getAdmin();
 
-    const refresh = async () => {
-      console.log("REFRESH TOKEN");
-      const response = await refreshToken(auth.refreshToken);
-      console.log("REFRESH RESPONSE", response);
-      setAuth((prev) => {
-        console.log(">>>>1", prev.accessToken);
-        console.log(">>>>2", response.data.access_token);
-        return { ...prev, accessToken: response.access_token };
-      });
-    };
-
-    refresh();
-
     return () => {
       isMounted = false;
-      controller.abort();
     };
   }, []);
 
@@ -61,6 +51,7 @@ const Users = () => {
       ) : (
         <p>No users to display</p>
       )}
+      <button onClick={handleRefresh}>Refresh</button>
     </article>
   );
 };
