@@ -31,14 +31,14 @@ public class AuthenticationController {
 
   @PostMapping("/authenticate")
   public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody AuthenticationRequest request) {
+      @RequestBody AuthenticationRequest request, HttpServletResponse httpServletResponse) {
     System.out.println("AuthenticationController.authenticate");
     if (request.getEmail().isEmpty() ||
         request.getPassword().isEmpty()) {
       return ResponseEntity.badRequest().build();
     }
 
-    var response = service.authenticate(request);
+    var response = service.authenticate(request, httpServletResponse);
     if (response == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }

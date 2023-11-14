@@ -7,11 +7,11 @@ import { login, request } from "../api/Api";
 const LOGIN_URL = "/auth/authenticate";
 
 const Login = () => {
-  const { setAuth } = useAuth();
+  const { setAuth, persist, setPersist } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state.from.pathname || "/";
+  const from = location.state?.from?.pathname || "/";
 
   const [errMsg, setErrMsg] = useState("");
 
@@ -30,6 +30,14 @@ const Login = () => {
   useEffect(() => {
     userRef.current.focus();
   }, []);
+
+  const togglePersist = () => {
+    setPersist((prev) => !prev);
+  };
+
+  useEffect(() => {
+    localStorage.setItem("persist", persist);
+  }, [persist]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -135,6 +143,13 @@ const Login = () => {
           >
             Login
           </button>
+          <input
+            type="checkbox"
+            id="persist"
+            onChange={togglePersist}
+            checked={persist}
+          />
+          <label htmlFor="persist">Trust This Device</label>
         </form>
         <div className="">
           <div>Need an Account?</div>

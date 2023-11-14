@@ -13,14 +13,20 @@ const PersistLogin = () => {
 
     const verifyRefreshToken = async () => {
       try {
+        console.log("VERIFYING REFRESH TOKEN");
         await refresh();
+        console.log("REFRESH TOKEN VERIFIED");
       } catch (err) {
         console.error(err);
       } finally {
+        console.log("FINALLY");
+        console.log("Persist: ", persist);
         isMounted && setIsLoading(false);
       }
     };
 
+    // persist added here AFTER tutorial video
+    // Avoids unwanted call to verifyRefreshToken
     !auth?.accessToken && persist ? verifyRefreshToken() : setIsLoading(false);
 
     return () => (isMounted = false);

@@ -5,13 +5,16 @@ const useRefreshToken = () => {
   const { setAuth, auth } = useAuth();
 
   const refresh = async () => {
-    const refreshToken = auth.refreshToken; // Replace with the actual property where your refresh token is stored in the auth state
+    console.log("AUTH>>", auth);
+    const token = auth.refreshToken; // Replace with the actual property where your refresh token is stored in the auth state
 
     try {
+      console.log("TOKEN>>", token);
       const response = await Axios.post("/auth/refresh-token", null, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        //   "Content-Type": "application/json",
+        // },
         withCredentials: true,
       });
       console.log("RESOOONSE", response);
@@ -21,11 +24,12 @@ const useRefreshToken = () => {
         console.log(">>>>2", response.data.access_token);
         return {
           ...prev,
-          role: response.data.role,
+          roles: [response.data.role],
           accessToken: response.data.access_token,
         };
       });
 
+      console.log("AUTH>>", auth);
       return response.data.access_token;
     } catch (error) {
       // Handle the error (e.g., token refresh failure)

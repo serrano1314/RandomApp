@@ -68,8 +68,7 @@ public class AuthenticationService {
         .build();
   }
 
-  public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse httpServletResponse,
-      HttpServletRequest httpServletRequest) {
+  public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse httpServletResponse) {
 
     System.out.println("AuthenticationService.authenticate");
 
@@ -97,7 +96,7 @@ public class AuthenticationService {
     Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
     refreshTokenCookie.setHttpOnly(true);
     refreshTokenCookie.setPath("/");
-    refreshTokenCookie.setSecure(true); // only works on https
+    // refreshTokenCookie.setSecure(true); // only works on https
     refreshTokenCookie.setMaxAge(refreshExpiration / 1000); // milliseconds divided into 1000 to make it in seconds
     httpServletResponse.addCookie(refreshTokenCookie);
 
@@ -137,7 +136,8 @@ public class AuthenticationService {
       HttpServletRequest request,
       HttpServletResponse response) throws IOException {
     System.out.println("AuthenticationService.refreshtoken");
-    final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    // final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    String authHeader = "";
     final String refreshToken;
     final String userEmail;
     System.out.println("COOKIES");
@@ -145,11 +145,16 @@ public class AuthenticationService {
 
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
+      System.out.println("COOKIES NOT NULL");
       for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("refresh_token")) {
-          System.out.println(cookie.getValue());
+        if (cookie.getName().equals("refreshToken")) {
+          authHeader += "Bearer " + (cookie.getValue());
+          System.out.println(" authheader:>" + authHeader);
+          break;
         }
       }
+    } else {
+      System.out.println("COOKIES NULL");
     }
 
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -171,10 +176,10 @@ public class AuthenticationService {
             .email(user.getEmail())
             .build();
 
-        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setSecure(true); // only works on https
+        // refreshTokenCookie.setSecure(true); // only works on https
         refreshTokenCookie.setMaxAge(refreshExpiration / 1000); // milliseconds divided into 1000 to make it in seconds
         response.addCookie(refreshTokenCookie);
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse); // write to response body
