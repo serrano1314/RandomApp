@@ -8,9 +8,13 @@ import tgsi.randomapp.backend.user.Role;
 import tgsi.randomapp.backend.user.User;
 import tgsi.randomapp.backend.user.UserMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 
 @Service
@@ -35,6 +40,9 @@ public class AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
+
+  @Value("${application.security.jwt.refresh-token.expiration}")
+  private int refreshExpiration;
 
   public AuthenticationResponse register(RegisterRequest request) {
     System.out.println("AuthenticationService.register");
@@ -60,7 +68,9 @@ public class AuthenticationService {
         .build();
   }
 
-  public AuthenticationResponse authenticate(AuthenticationRequest request) {
+  public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse httpServletResponse,
+      HttpServletRequest httpServletRequest) {
+
     System.out.println("AuthenticationService.authenticate");
 
     try {
@@ -83,6 +93,13 @@ public class AuthenticationService {
     var refreshToken = jwtService.generateRefreshToken(user);
     revokeAllUserTokens(user);
     saveUserToken(user, jwtToken);
+
+    Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+    refreshTokenCookie.setHttpOnly(true);
+    refreshTokenCookie.setPath("/");
+    refreshTokenCookie.setSecure(true); // only works on https
+    refreshTokenCookie.setMaxAge(refreshExpiration / 1000); // milliseconds divided into 1000 to make it in seconds
+    httpServletResponse.addCookie(refreshTokenCookie);
 
     return AuthenticationResponse.builder()
         .accessToken(jwtToken)
@@ -123,11 +140,23 @@ public class AuthenticationService {
     final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     final String refreshToken;
     final String userEmail;
+    System.out.println("COOKIES");
+    System.out.println(authHeader);
+
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals("refresh_token")) {
+          System.out.println(cookie.getValue());
+        }
+      }
+    }
+
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
       return;
     }
-    refreshToken = authHeader.substring(7);
-    userEmail = jwtService.extractUsername(refreshToken);
+    refreshToken = authHeader.substring(7); // 7 is the length of "Bearer "
+    userEmail = jwtService.extractUsername(refreshToken); // extract email from token
     if (userEmail != null) {
       User user = this.userMapper.findByEmail(userEmail);
       // .orElseThrow();
@@ -138,8 +167,17 @@ public class AuthenticationService {
         var authResponse = AuthenticationResponse.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
+            .role(user.getRole())
+            .email(user.getEmail())
             .build();
-        new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+
+        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setSecure(true); // only works on https
+        refreshTokenCookie.setMaxAge(refreshExpiration / 1000); // milliseconds divided into 1000 to make it in seconds
+        response.addCookie(refreshTokenCookie);
+        new ObjectMapper().writeValue(response.getOutputStream(), authResponse); // write to response body
       }
     }
   }
