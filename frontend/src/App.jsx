@@ -8,6 +8,7 @@ import RequireAuth from "./component/RequireAuth";
 import LinkPage from "./component/LinkPage";
 import Unauthorized from "./component/Unauthorized";
 import Admin from "./component/Admin";
+import PersistLogin from "./component/PersistLogin";
 
 const ROLES = {
   admin: "ADMIN",
@@ -27,28 +28,29 @@ function App() {
           <Route path="unauthorized" element={<Unauthorized />} />
 
           {/* private routes  */}
-          <Route
-            element={
-              <RequireAuth
-                allowedRole={[ROLES.admin, ROLES.manager, ROLES.user]}
-              />
-            }
-          >
-            <Route path="/" element={<Home />} />
-          </Route>
+          <Route element={<PersistLogin />}>
+            <Route
+              element={
+                <RequireAuth
+                  allowedRole={[ROLES.admin, ROLES.manager, ROLES.user]}
+                />
+              }
+            >
+              <Route path="/" element={<Home />} />
+            </Route>
 
-          <Route element={<RequireAuth allowedRole={[ROLES.admin]} />}>
-            <Route path="admin" element={<Admin />} />
-          </Route>
+            <Route element={<RequireAuth allowedRole={[ROLES.admin]} />}>
+              <Route path="admin" element={<Admin />} />
+            </Route>
 
-          <Route element={<RequireAuth allowedRole={[ROLES.manager]} />}>
-            <Route path="manager" element={"Manager Page"} />
-          </Route>
+            <Route element={<RequireAuth allowedRole={[ROLES.manager]} />}>
+              <Route path="manager" element={"Manager Page"} />
+            </Route>
 
-          <Route element={<RequireAuth allowedRole={[ROLES.user]} />}>
-            <Route path="user" element={"User Page"} />
+            <Route element={<RequireAuth allowedRole={[ROLES.user]} />}>
+              <Route path="user" element={"User Page"} />
+            </Route>
           </Route>
-
           <Route path="*" element={"404"} />
         </Route>
       </Routes>
