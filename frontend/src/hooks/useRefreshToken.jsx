@@ -1,26 +1,34 @@
 import Axios from "../api/Axios";
 import useAuth from "./useAuth";
+import { isExpired } from "react-jwt";
 
 const useRefreshToken = () => {
   const { setAuth, auth } = useAuth();
 
   const refresh = async () => {
-    console.log("AUTH>>", auth);
-    const token = auth.refreshToken; // Replace with the actual property where your refresh token is stored in the auth state
+    console.log("AUTH EXP>>", isExpired(auth.accessToken));
+    const token =
+      auth.accessToken && !isExpired(auth.accessToken)
+        ? auth.accessToken
+        : "Bearer " + auth.accessToken;
 
     try {
       console.log("TOKEN>>", token);
       const response = await Axios.post("/auth/refresh-token", null, {
-        // headers: {
-        //   Authorization: `Bearer ${token}`,
-        //   "Content-Type": "application/json",
-        // },
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
         withCredentials: true,
       });
       console.log("RESOOONSE", response);
       setAuth((prev) => {
         console.log(">>>>0", response);
-        console.log(">>>>1", JSON.stringify(prev.accessToken));
+        console.log(
+          ">>>>1",
+          JSON.stringify(prev.accessToken),
+          JSON.stringify(prev.refreshToken)
+        );
         console.log(">>>>2", response.data.access_token);
         return {
           ...prev,

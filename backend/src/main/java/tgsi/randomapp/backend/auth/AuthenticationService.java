@@ -132,44 +132,41 @@ public class AuthenticationService {
     }
   }
 
-  public void refreshToken(
-      HttpServletRequest request,
-      HttpServletResponse response) throws IOException {
+  public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
     System.out.println("AuthenticationService.refreshtoken");
-    // final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-    String authHeader = "";
-    final String refreshToken;
-    final String userEmail;
-    System.out.println("COOKIES");
-    System.out.println(authHeader);
-
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      System.out.println("COOKIES NOT NULL");
-      for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("refreshToken")) {
-          authHeader += "Bearer " + (cookie.getValue());
-          System.out.println(" authheader:>" + authHeader);
-          break;
+    String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    System.out.println("authHeader1: " + authHeader);
+    if (authHeader == null || jwtService.isTokenExpired(authHeader)) {
+      Cookie[] cookies = request.getCookies();
+      if (cookies != null) {
+        System.out.println("COOKIES NOT NULL");
+        for (Cookie cookie : cookies) {
+          if (cookie.getName().equals("refreshToken")) {
+            authHeader = "Bearer " + cookie.getValue();
+            System.out.println("authHeader2: " + authHeader);
+            break;
+          }
         }
+      } else {
+        System.out.println("COOKIES NULL");
       }
-    } else {
-      System.out.println("COOKIES NULL");
     }
 
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
       return;
     }
-    refreshToken = authHeader.substring(7); // 7 is the length of "Bearer "
-    userEmail = jwtService.extractUsername(refreshToken); // extract email from token
+
+    String refreshToken = authHeader.substring(7); // 7 is the length of "Bearer "
+    String userEmail = jwtService.extractUsername(refreshToken); // extract email from token
+
     if (userEmail != null) {
       User user = this.userMapper.findByEmail(userEmail);
-      // .orElseThrow();
-      if (jwtService.isTokenValid(refreshToken, user)) {
-        var accessToken = jwtService.generateToken(user);
+      if (user != null && jwtService.isTokenValid(refreshToken, user)) {
+        String accessToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, accessToken);
-        var authResponse = AuthenticationResponse.builder()
+
+        AuthenticationResponse authResponse = AuthenticationResponse.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .role(user.getRole())
@@ -179,9 +176,9 @@ public class AuthenticationService {
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
-        // refreshTokenCookie.setSecure(true); // only works on https
         refreshTokenCookie.setMaxAge(refreshExpiration / 1000); // milliseconds divided into 1000 to make it in seconds
         response.addCookie(refreshTokenCookie);
+
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse); // write to response body
       }
     }
