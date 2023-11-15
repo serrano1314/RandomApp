@@ -6,11 +6,15 @@ const useRefreshToken = () => {
   const { setAuth, auth } = useAuth();
 
   const refresh = async () => {
+    if (!isExpired(auth.accessToken)) {
+      console.log("NOT EXPIRED", auth.accessToken);
+      return auth.accessToken;
+    }
     console.log("AUTH EXP>>", isExpired(auth.accessToken));
     const token =
       auth.accessToken && !isExpired(auth.accessToken)
         ? auth.accessToken
-        : "Bearer " + auth.accessToken;
+        : undefined;
 
     try {
       console.log("TOKEN>>", token);

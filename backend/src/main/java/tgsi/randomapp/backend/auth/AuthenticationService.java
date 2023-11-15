@@ -44,6 +44,9 @@ public class AuthenticationService {
   @Value("${application.security.jwt.refresh-token.expiration}")
   private int refreshExpiration;
 
+  @Value("${application.security.jwt.expiration}")
+  private int jwtExpiration;
+
   public AuthenticationResponse register(RegisterRequest request) {
     System.out.println("AuthenticationService.register");
 
@@ -136,7 +139,7 @@ public class AuthenticationService {
     System.out.println("AuthenticationService.refreshtoken");
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     System.out.println("authHeader1: " + authHeader);
-    if (authHeader == null || jwtService.isTokenExpired(authHeader)) {
+    if (authHeader == null || (authHeader != null && jwtService.isTokenExpired(authHeader))) {
       Cookie[] cookies = request.getCookies();
       if (cookies != null) {
         System.out.println("COOKIES NOT NULL");
@@ -173,11 +176,18 @@ public class AuthenticationService {
             .email(user.getEmail())
             .build();
 
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(refreshExpiration / 1000); // milliseconds divided into 1000 to make it in seconds
-        response.addCookie(refreshTokenCookie);
+        // Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        // refreshTokenCookie.setHttpOnly(true);
+        // refreshTokenCookie.setPath("/");
+        // refreshTokenCookie.setMaxAge(refreshExpiration / 1000); // milliseconds
+        // divided into 1000 to make it in seconds
+        // response.addCookie(refreshTokenCookie);
+
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(jwtExpiration / 1000); // milliseconds divided into 1000 to make it in seconds
+        response.addCookie(accessTokenCookie);
 
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse); // write to response body
       }
